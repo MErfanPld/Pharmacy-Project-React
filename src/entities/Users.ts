@@ -5,7 +5,7 @@ export interface Users {
   phoneNumber: string;
   national_id: string;
   created_at: string;
-  password: string,
-  marital_status: string
+  password: string;
+  marital_status: string;
   image: string;
 }
