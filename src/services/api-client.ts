@@ -2,22 +2,26 @@
 import axios, { AxiosRequestConfig, AxiosInstance } from "axios";
 
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: "https://pharmacyapi.pythonanywhere.com/api/",
+  // baseURL: "http://127.0.0.1:8000/api/",
 });
 
-axiosInstance.interceptors.request.use(function (config) {
-  // بررسی وجود توکن در localStorage
-  const token = localStorage.getItem("token");
-  if (!token) {
-    localStorage.clear();
+axiosInstance.interceptors.request.use(
+  function (config) {
+    // بررسی وجود توکن در localStorage
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.clear();
+      return config;
+    }
+    config.headers["Authorization"] = "Bearer " + token;
     return config;
+  },
+  function (error) {
+    // مدیریت خطاهای درخواست
+    return Promise.reject(error);
   }
-  config.headers["Authorization"] = "Bearer " + token;
-  return config;
-}, function (error) {
-  // مدیریت خطاهای درخواست
-  return Promise.reject(error);
-});
+);
 
 class APIClient<T> {
   endpoint: string;
@@ -36,12 +40,16 @@ class APIClient<T> {
   };
 
   post = <X>(data: X, config?: AxiosRequestConfig) => {
-    return axiosInstance.post<T>(this.endpoint, data, { ...config }).then((res) => res.data);
+    return axiosInstance
+      .post<T>(this.endpoint, data, { ...config })
+      .then((res) => res.data);
   };
 
   put = <X>(id: number, data: X, config?: AxiosRequestConfig) => {
     const url = `${this.endpoint}/${id}/`;
-    return axiosInstance.put<T>(url, data, { ...config }).then((res) => res.data);
+    return axiosInstance
+      .put<T>(url, data, { ...config })
+      .then((res) => res.data);
   };
 }
 
